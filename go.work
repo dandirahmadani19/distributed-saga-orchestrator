@@ -1,0 +1,11 @@
+module github.com/dandirahmadani19/distributed-saga-orchestrator
+
+go 1.21
+
+use (
+	./services/orchestrator
+	./services/order
+	./services/payment
+	./services/inventory
+	./shared
+)
