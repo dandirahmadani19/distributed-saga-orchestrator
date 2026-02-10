@@ -29,4 +29,3 @@ vendor/
 *.log
 #proto-generated files
 /gen/
-/docs/
