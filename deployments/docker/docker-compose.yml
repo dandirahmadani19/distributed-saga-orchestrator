@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  postgres-orchestrator:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: saga_orchestrator
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5433:5432"
+
+  postgres-order:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: order_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5434:5432"
+
+  postgres-payment:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: payment_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5435:5432"
+
+  postgres-inventory:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: inventory_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5436:5432"
