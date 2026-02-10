@@ -27,3 +27,6 @@ vendor/
 *.sqlite
 # Logs
 *.log
+#proto-generated files
+/gen/
+/docs/

@@ -1,0 +1,7 @@
+version: 1
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

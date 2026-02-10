@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package payment.v1;
+
+option go_package = "github.com/dandirahmadani19/distributed-saga-orchestrator/gen/payment/v1";
+
+service PaymentService {
+    rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+    rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse);
+}
+
+message ProcessPaymentRequest {
+    string idempotency_key = 1;
+    string order_id = 2;
+    string customer_id = 3;
+    double amount = 4;
+}
+
+message ProcessPaymentResponse {
+    string payment_id = 1;
+    string status = 2;  // PENDING, COMPLETED, FAILED
+}
+
+message RefundPaymentRequest {
+    string idempotency_key = 1;
+    string payment_id = 2;
+}
+
+message RefundPaymentResponse {
+    string payment_id = 1;
+    string status = 2;  // REFUNDED
+}

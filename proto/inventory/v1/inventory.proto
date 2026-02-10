@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+option go_package = "github.com/dandirahmadani19/distributed-saga-orchestrator/gen/inventory/v1";
+
+service InventoryService {
+    rpc ReserveInventory(ReserveInventoryRequest) returns (ReserveInventoryResponse);
+    rpc ReleaseInventory(ReleaseInventoryRequest) returns (ReleaseInventoryResponse);
+}
+
+message ReserveInventoryRequest {
+    string idempotency_key = 1;
+    string order_id = 2;
+    repeated ReserveItem items = 3;
+}
+
+message ReserveItem {
+    string product_id = 1;
+    int32 quantity = 2;
+}
+
+message ReserveInventoryResponse {
+    string reservation_id = 1;
+    string status = 2;  // ACTIVE, RELEASED
+}
+
+message ReleaseInventoryRequest {
+    string idempotency_key = 1;
+    string order_id = 2;
+}
+
+message ReleaseInventoryResponse {
+    string status = 1;
+}

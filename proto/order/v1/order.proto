@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package order.v1;
+
+option go_package = "github.com/dandirahmadani19/distributed-saga-orchestrator/gen/order/v1";
+
+// Order Service handles order creation and cancellation
+service OrderService {
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+    rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+}
+
+// Request to create an order
+message CreateOrderRequest {
+    string idempotency_key = 1;  // Prevents duplicate orders
+    string customer_id = 2;
+    repeated OrderItem items = 3;
+    double total_amount = 4;
+}
+
+// One item in the order
+message OrderItem {
+    string product_id = 1;
+    int32 quantity = 2;
+    double price = 3;
+}
+
+// Response after creating order
+message CreateOrderResponse {
+    string order_id = 1;
+    string status = 2;       // CREATED, CONFIRMED, CANCELLED
+    string created_at = 3;
+}
+
+// Request to cancel an order
+message CancelOrderRequest {
+    string idempotency_key = 1;
+    string order_id = 2;
+}
+
+// Response after cancelling
+message CancelOrderResponse {
+    string order_id = 1;
+    string status = 2;
+}
