@@ -11,11 +11,13 @@ import (
 type OrderHandler struct {
 	pb.UnimplementedOrderServiceServer
 	createUC *usecase.CreateOrderUseCase
+	cancelUC *usecase.CancelOrderUseCase
 }
 
-func NewOrderHandler(createUC *usecase.CreateOrderUseCase) *OrderHandler {
+func NewOrderHandler(createUC *usecase.CreateOrderUseCase, cancelUC *usecase.CancelOrderUseCase) *OrderHandler {
 	return &OrderHandler{
 		createUC: createUC,
+		cancelUC: cancelUC,
 	}
 }
 
@@ -48,5 +50,16 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 		OrderId:   result.ID,
 		Status:    result.Status,
 		CreatedAt: result.CreatedAt.Format("2006-01-02T15:04:05Z"),
+	}, nil
+}
+
+func (h *OrderHandler) CancelOrder(ctx context.Context, req *pb.CancelOrderRequest) (*pb.CancelOrderResponse, error) {
+	result, err := h.cancelUC.Execute(ctx, req.OrderId, req.IdempotencyKey)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.CancelOrderResponse{
+		OrderId: result.ID,
+		Status:  result.Status,
 	}, nil
 }

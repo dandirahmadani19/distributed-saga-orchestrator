@@ -25,7 +25,8 @@ type Server struct {
 func New(db *sql.DB, log *logger.Logger) (*Server, error) {
 	repo := repository.NewPostgresOrderRepository(db)
 	createUC := usecase.NewCreateOrderUseCase(repo, log)
-	handler := grpcHandler.NewOrderHandler(createUC)
+	cancelUC := usecase.NewCancelOrderUseCase(repo, log)
+	handler := grpcHandler.NewOrderHandler(createUC, cancelUC)
 
 	// Setup gRPC server
 	grpcServer := grpc.NewServer(grpc.ConnectionTimeout(5 * time.Second))
