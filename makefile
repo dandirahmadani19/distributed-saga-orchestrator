@@ -114,7 +114,7 @@ proto-payment:
 	@$(PROTOC) \
 		--go_out=services/payment/gen $(GO_OPT) \
 		--go-grpc_out=services/payment/gen $(GRPC_OPT) \
-		$(PROTO_DIR)/payment/*.proto
+		$(PROTO_DIR)/payment/v1/*.proto
 	@echo "✅ Payment protos generated"
 
 ## Upgrade gRPC to latest version
