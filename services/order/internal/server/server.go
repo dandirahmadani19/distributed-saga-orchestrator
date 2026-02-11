@@ -13,6 +13,7 @@ import (
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/infrastructure/repository"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/shared/pkg/logger"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type Server struct {
@@ -31,6 +32,8 @@ func New(db *sql.DB, log *logger.Logger) (*Server, error) {
 	// Setup gRPC server
 	grpcServer := grpc.NewServer(grpc.ConnectionTimeout(5 * time.Second))
 	pb.RegisterOrderServiceServer(grpcServer, handler)
+
+	reflection.Register(grpcServer)
 
 	// Use global config for port
 	port := config.Server().Port
