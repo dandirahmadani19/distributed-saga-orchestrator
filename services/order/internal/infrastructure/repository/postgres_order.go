@@ -108,8 +108,14 @@ func (r *postgresOrderRepository) CheckIdempotency(ctx context.Context, key stri
 
 func (r *postgresOrderRepository) FindByID(ctx context.Context, id string) (*entity.Order, error) {
 	query := `
-		SELECT id, customer_id, status, total_amount, created_at, updated_at
-		FROM orders
+		SELECT 
+			id,
+			customer_id,
+			status,
+			total_amount,
+			created_at,
+			updated_at
+		FROM orders 
 		WHERE id = $1
 	`
 	var order entity.Order
@@ -118,27 +124,20 @@ func (r *postgresOrderRepository) FindByID(ctx context.Context, id string) (*ent
 		&order.ID, &order.CustomerID, &status, &order.TotalAmount,
 		&order.CreatedAt, &order.UpdatedAt,
 	)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	}
 	if err != nil {
 		return nil, err
 	}
 
 	order.Status = entity.OrderStatus(status)
 
-	// Fetch order items
-	itemsQuery := `
-		SELECT product_id, quantity, price
-		FROM order_items
-		WHERE order_id = $1
-	`
+	// Load items
+	itemsQuery := `SELECT product_id, quantity, price FROM order_items WHERE order_id = $1`
 	rows, err := r.db.QueryContext(ctx, itemsQuery, id)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
+	defer rows.Close()
 	for rows.Next() {
 		var item entity.OrderItem
 		if err := rows.Scan(&item.ProductID, &item.Quantity, &item.Price); err != nil {
