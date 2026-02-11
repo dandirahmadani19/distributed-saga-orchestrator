@@ -1,0 +1,76 @@
+services:
+  postgres-orchestrator:
+    image: postgres:16
+    networks:
+      - saga-network
+    environment:
+      POSTGRES_DB: saga_orchestrator
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5433:5432"
+
+  postgres-order:
+    image: postgres:16
+    networks:
+      - saga-network
+    environment:
+      POSTGRES_DB: order_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5434:5432"
+
+  postgres-payment:
+    image: postgres:16
+    networks:
+      - saga-network
+    environment:
+      POSTGRES_DB: payment_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5435:5432"
+
+  postgres-inventory:
+    image: postgres:16
+    networks:
+      - saga-network
+    environment:
+      POSTGRES_DB: inventory_service
+      POSTGRES_USER: saga
+      POSTGRES_PASSWORD: saga
+    ports:
+      - "5436:5432"
+
+  # Development service with Air hot reloading
+  order-service:
+    build:
+      context: ../..
+      dockerfile: services/order/Dockerfile.dev
+    container_name: order-service
+    networks:
+      - saga-network
+    environment:
+      PORT: "50051"
+      DB_HOST: postgres-order
+      DB_PORT: "5432"
+      DB_USER: saga
+      DB_PASSWORD: saga
+      DB_NAME: order_service
+      DB_SSLMODE: disable
+    ports:
+      - "50051:50051"
+    depends_on:
+      - postgres-order
+    volumes:
+      - ../../services/order:/app/services/order
+      - ../../shared:/app/shared
+      # Exclude tmp directory from sync to avoid conflicts
+      - /app/services/order/tmp
+    restart: unless-stopped
+
+networks:
+  saga-network:
+    driver: bridge
+    name: saga-orchestrator-network

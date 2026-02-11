@@ -1,33 +1,118 @@
 PROTO_DIR := proto
-GEN_DIR := gen
-
 PROTOC := protoc
-GO_OUT := --go_out=$(GEN_DIR) --go_opt=paths=source_relative
-GRPC_OUT := --go-grpc_out=$(GEN_DIR) --go-grpc_opt=paths=source_relative
 
-SERVICES := order payment inventory
-VERSIONS := v1
+# Protoc options
+GO_OPT := --go_opt=paths=source_relative
+GRPC_OPT := --go-grpc_opt=paths=source_relative
 
-.PHONY: proto clean
+MIGRATE_ORDER_URL := postgresql://saga:saga@postgres-order:5432/order_service?sslmode=disable
+NETWORK_NAME := saga-orchestrator-network
 
-## Generate Go + gRPC code from protobuf
-proto:
-	@echo "🔨 Generating Go code from Protobuf..."
-	@mkdir -p $(GEN_DIR)
-	@for service in $(SERVICES); do \
-		for version in $(VERSIONS); do \
-			if ls $(PROTO_DIR)/$$service/$$version/*.proto >/dev/null 2>&1; then \
-				echo "→ Generating $$service/$$version proto"; \
-				$(PROTOC) \
-					$(GO_OUT) \
-					$(GRPC_OUT) \
-					$(PROTO_DIR)/$$service/$$version/*.proto; \
-			fi; \
-		done; \
-	done
-	@echo "✅ Protobuf generation complete!"
+.PHONY: proto proto-order proto-inventory proto-payment proto-orchestrator update-grpc clean help
 
-## Remove generated files
+help:
+	@echo "📋 Available targets:"
+	@echo "  make proto            - Generate all proto files"
+	@echo "  make proto-order      - Generate order service protos"
+	@echo "  make proto-inventory  - Generate inventory service protos"
+	@echo "  make proto-payment    - Generate payment service protos"
+	@echo "  make update-grpc      - Upgrade gRPC to latest version"
+	@echo "  make clean            - Remove all generated files"
+	@echo "  make migrate-up-order - Run order service migrations"
+	@echo "  make migrate-down-order - Rollback order service migrations"
+	@echo "  make migrate-force-order - Force order service migration version"
+
+# Database migration commands
+# Note: Migrations run inside Docker container to access the Docker network
+
+migrate-up-order:
+	@echo "🔄 Running order service migrations..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/order/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_ORDER_URL)" up
+	@echo "✅ Migrations completed"
+
+migrate-down-order:
+	@echo "⬇️  Rolling back order service migrations..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/order/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_ORDER_URL)" down 1
+	@echo "✅ Rollback completed"
+
+migrate-force-order:
+	@echo "⚠️  Forcing migration version..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/order/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_ORDER_URL)" force $(VERSION)
+	@echo "✅ Migration version forced to $(VERSION)"
+
+## Generate all service protos
+proto: proto-order proto-inventory proto-payment
+	@echo "✅ All proto generation complete!"
+
+## Generate order service protos
+proto-order:
+	@echo "🔨 Generating order service protos..."
+	@mkdir -p services/order/gen
+	@$(PROTOC) \
+		--go_out=services/order/gen $(GO_OPT) \
+		--go-grpc_out=services/order/gen $(GRPC_OPT) \
+		$(PROTO_DIR)/order/v1/*.proto
+	@echo "✅ Order protos generated"
+
+## Generate inventory service protos
+proto-inventory:
+	@echo "🔨 Generating inventory service protos..."
+	@mkdir -p services/inventory/gen
+	@$(PROTOC) \
+		--go_out=services/inventory/gen $(GO_OPT) \
+		--go-grpc_out=services/inventory/gen $(GRPC_OPT) \
+		$(PROTO_DIR)/inventory/v1/*.proto
+	@echo "✅ Inventory protos generated"
+
+## Generate payment service protos
+proto-payment:
+	@echo "🔨 Generating payment service protos..."
+	@mkdir -p services/payment/gen
+	@$(PROTOC) \
+		--go_out=services/payment/gen $(GO_OPT) \
+		--go-grpc_out=services/payment/gen $(GRPC_OPT) \
+		$(PROTO_DIR)/payment/*.proto
+	@echo "✅ Payment protos generated"
+
+## Upgrade gRPC to latest version
+update-grpc:
+	@echo "⬆️  Upgrading gRPC dependencies..."
+	@cd services/order && go get -u google.golang.org/grpc@latest google.golang.org/protobuf@latest
+# 	@cd services/inventory && go get -u google.golang.org/grpc@latest google.golang.org/protobuf@latest
+# 	@cd services/payment && go get -u google.golang.org/grpc@latest google.golang.org/protobuf@latest
+	@echo "✅ gRPC upgraded in all services"
+
+## Clean generated files
 clean:
 	@echo "🧹 Cleaning generated files..."
-	@rm -rf $(GEN_DIR)
+	@rm -rf services/order/gen
+	@rm -rf services/inventory/gen
+	@rm -rf services/payment/gen
+	@rm -rf gen
+	@echo "✅ Cleanup complete"
+
+# Development commands with Air hot reloading
+start-dev-order:
+	@echo "🔥 Starting development mode with Air hot reloading..."
+	@docker compose -f deployments/docker/docker-compose.dev.yml up -d postgres-order
+	@docker compose -f deployments/docker/docker-compose.dev.yml up -d order-service
+	@echo "✅ Development service is running with hot reload"
+
+stop-dev-order:
+	@echo "Stopping development service..."
+	@docker compose -f deployments/docker/docker-compose.dev.yml down postgres-order
+	@docker compose -f deployments/docker/docker-compose.dev.yml down order-service
+	@echo "✅ Development service is stopped"
+
+logs-dev-order:
+	@docker compose -f deployments/docker/docker-compose.dev.yml logs -f order-service
+

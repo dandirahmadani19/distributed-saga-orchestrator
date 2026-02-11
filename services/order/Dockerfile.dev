@@ -1,0 +1,28 @@
+# Development Dockerfile with Air for hot reloading
+FROM golang:1.25-alpine
+
+# Install Air for hot reloading
+RUN go install github.com/air-verse/air@latest
+
+WORKDIR /app
+
+# Copy go workspace files
+COPY go.work go.work.sum ./
+
+# Copy shared module
+COPY shared/ ./shared/
+
+# Copy order service
+COPY services/order/ ./services/order/
+
+# Set working directory to order service
+WORKDIR /app/services/order
+
+# Download dependencies
+RUN go mod download
+
+# Expose gRPC port
+EXPOSE 50051
+
+# Run Air for hot reloading
+CMD ["air", "-c", ".air.toml"]

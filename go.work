@@ -1,9 +1,9 @@
-go 1.21
+go 1.25.1
 
 use (
 	// ./services/orchestrator
-	// ./services/order
 	// ./services/payment
 	// ./services/inventory
+	./services/order
 	./shared
 )
