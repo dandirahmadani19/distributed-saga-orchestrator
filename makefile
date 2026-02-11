@@ -101,6 +101,12 @@ clean:
 	@echo "✅ Cleanup complete"
 
 # Development commands with Air hot reloading
+build-dev-order:
+	@echo "🔥 Building and starting development mode with Air hot reloading..."
+	@docker compose -f deployments/docker/docker-compose.dev.yml up -d postgres-order
+	@docker compose -f deployments/docker/docker-compose.dev.yml up --build -d order-service
+	@echo "✅ Development service is running with hot reload"
+
 start-dev-order:
 	@echo "🔥 Starting development mode with Air hot reloading..."
 	@docker compose -f deployments/docker/docker-compose.dev.yml up -d postgres-order

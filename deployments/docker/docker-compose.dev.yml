@@ -1,15 +1,4 @@
 services:
-  postgres-orchestrator:
-    image: postgres:16
-    networks:
-      - saga-network
-    environment:
-      POSTGRES_DB: saga_orchestrator
-      POSTGRES_USER: saga
-      POSTGRES_PASSWORD: saga
-    ports:
-      - "5433:5432"
-
   postgres-order:
     image: postgres:16
     networks:
@@ -20,28 +9,11 @@ services:
       POSTGRES_PASSWORD: saga
     ports:
       - "5434:5432"
-
-  postgres-payment:
-    image: postgres:16
-    networks:
-      - saga-network
-    environment:
-      POSTGRES_DB: payment_service
-      POSTGRES_USER: saga
-      POSTGRES_PASSWORD: saga
-    ports:
-      - "5435:5432"
-
-  postgres-inventory:
-    image: postgres:16
-    networks:
-      - saga-network
-    environment:
-      POSTGRES_DB: inventory_service
-      POSTGRES_USER: saga
-      POSTGRES_PASSWORD: saga
-    ports:
-      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saga"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
 
   # Development service with Air hot reloading
   order-service:
@@ -51,6 +23,7 @@ services:
     container_name: order-service
     networks:
       - saga-network
+    working_dir: /app/services/order
     environment:
       PORT: "50051"
       DB_HOST: postgres-order
@@ -62,15 +35,17 @@ services:
     ports:
       - "50051:50051"
     depends_on:
-      - postgres-order
+      postgres-order:
+        condition: service_healthy
     volumes:
-      - ../../services/order:/app/services/order
-      - ../../shared:/app/shared
-      # Exclude tmp directory from sync to avoid conflicts
-      - /app/services/order/tmp
-    restart: unless-stopped
+    - ../../:/app
+    - go-mod-cache:/go/pkg/mod
+    restart: no
 
 networks:
   saga-network:
     driver: bridge
     name: saga-orchestrator-network
+
+volumes:
+  go-mod-cache:
