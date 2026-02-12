@@ -13,10 +13,11 @@ import (
 type PaymentHandler struct {
 	pb.UnimplementedPaymentServiceServer
 	processUC *usecase.ProcessPaymentUseCase
+	refundUC  *usecase.RefundPaymentUseCase
 }
 
-func NewPaymentHandler(processUC *usecase.ProcessPaymentUseCase) *PaymentHandler {
-	return &PaymentHandler{processUC: processUC}
+func NewPaymentHandler(processUC *usecase.ProcessPaymentUseCase, refundUC *usecase.RefundPaymentUseCase) *PaymentHandler {
+	return &PaymentHandler{processUC: processUC, refundUC: refundUC}
 }
 
 func (h *PaymentHandler) ProcessPayment(ctx context.Context, req *pb.ProcessPaymentRequest) (*pb.ProcessPaymentResponse, error) {
@@ -32,6 +33,22 @@ func (h *PaymentHandler) ProcessPayment(ctx context.Context, req *pb.ProcessPaym
 	}
 
 	return &pb.ProcessPaymentResponse{
+		PaymentId: payment.ID,
+		Status:    payment.Status,
+	}, nil
+}
+
+func (h *PaymentHandler) RefundPayment(ctx context.Context, req *pb.RefundPaymentRequest) (*pb.RefundPaymentResponse, error) {
+	payment, err := h.refundUC.Execute(ctx, dto.RefundPaymentRequest{
+		IdempotencyKey: req.IdempotencyKey,
+		PaymentID:      req.PaymentId,
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.RefundPaymentResponse{
 		PaymentId: payment.ID,
 		Status:    payment.Status,
 	}, nil

@@ -10,6 +10,11 @@ type CreatePaymentRequest struct {
 	Amount         float64
 }
 
+type RefundPaymentRequest struct {
+	IdempotencyKey string
+	PaymentID      string
+}
+
 // PaymentResponse is the output after creating/fetching a payment
 type PaymentResponse struct {
 	ID         string

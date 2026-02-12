@@ -37,3 +37,18 @@ func NewPayment(orderID, customerID string, amount float64) *Payment {
 		UpdatedAt:  now,
 	}
 }
+
+func (p *Payment) Refund() {
+	p.Status = PaymentStatusRefunded
+	p.UpdatedAt = time.Now()
+}
+
+func (p *Payment) Process() {
+	p.Status = PaymentStatusProcessed
+	p.UpdatedAt = time.Now()
+}
+
+func (p *Payment) Fail() {
+	p.Status = PaymentStatusFailed
+	p.UpdatedAt = time.Now()
+}

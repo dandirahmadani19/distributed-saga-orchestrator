@@ -25,10 +25,13 @@ func NewCancelOrderUseCase(repo repository.OrderRepository, logger *logger.Logge
 func (uc *CancelOrderUseCase) Execute(ctx context.Context, orderID string, idempotencyKey string) (*dto.OrderResponse, error) {
 	// Check idempotency
 	existingOrder, err := uc.repo.CheckIdempotency(ctx, idempotencyKey)
-	if err == nil && existingOrder != nil {
+	if err != nil {
+		return nil, err
+	}
+	if existingOrder != nil {
 		uc.logger.Info().
 			Str("order_id", orderID).
-			Msg("Returning existing cancellation (idempoten)")
+			Msg("Returning existing order cancellation")
 		return uc.toDTO(existingOrder), nil
 	}
 

@@ -26,7 +26,8 @@ type Server struct {
 func New(db *sql.DB, log *logger.Logger) (*Server, error) {
 	repo := repository.NewPostgresPaymentRepository(db)
 	processUC := usecase.NewProcessPaymentUseCase(repo, log)
-	handler := grpcHandler.NewPaymentHandler(processUC)
+	refundUC := usecase.NewRefundPaymentUseCase(repo, log)
+	handler := grpcHandler.NewPaymentHandler(processUC, refundUC)
 
 	// Setup gRPC server
 	grpcServer := grpc.NewServer(grpc.ConnectionTimeout(5 * time.Second))

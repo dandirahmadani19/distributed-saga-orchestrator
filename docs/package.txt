@@ -22,3 +22,8 @@ grpcurl -plaintext -d '{
   "order_id": "4ed43ee8-9410-4136-b656-72807c566b73",
   "amount": 99.99
 }' localhost:50052 payment.v1.PaymentService/ProcessPayment
+
+grpcurl -plaintext -d '{
+  "idempotency_key": "test-key-001",
+  "payment_id": "fcd28f81-290f-4a62-b0ad-d39ac0f1da1b"
+}' localhost:50052 payment.v1.PaymentService/RefundPayment

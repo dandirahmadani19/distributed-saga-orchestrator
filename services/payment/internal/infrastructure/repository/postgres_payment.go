@@ -96,3 +96,48 @@ func (r *postgresPaymentRepository) CheckIdempotency(ctx context.Context, key st
 	payment.Status = entity.PaymentStatus(status)
 	return &payment, nil
 }
+
+func (r *postgresPaymentRepository) GetByID(ctx context.Context, id string) (*entity.Payment, error) {
+	query := `
+		SELECT 
+			id,
+			customer_id,
+			order_id,
+			status,
+			amount,
+			created_at,
+			updated_at
+		FROM payments
+		WHERE id = $1
+	`
+
+	var payment entity.Payment
+	var status string
+
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&payment.ID, &payment.CustomerID, &payment.OrderID, &status, &payment.Amount,
+		&payment.CreatedAt, &payment.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	payment.Status = entity.PaymentStatus(status)
+	return &payment, nil
+}
+
+func (r *postgresPaymentRepository) Update(ctx context.Context, payment *entity.Payment) error {
+	query := `
+		UPDATE payments
+		SET status = $2, updated_at = $3
+		WHERE id = $1
+	`
+
+	_, err := r.db.ExecContext(ctx, query, payment.ID, string(payment.Status), payment.UpdatedAt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
