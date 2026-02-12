@@ -1,0 +1,24 @@
+go get -u google.golang.org/grpc
+go get -u google.golang.org/protobuf
+go get -u github.com/ilyakaznacheev/cleanenv
+go get github.com/lib/pq
+go get github.com/joho/godotenv
+
+grpcurl -plaintext -d '{
+  "idempotency_key": "test-key-001",
+  "customer_id": "cust-123",
+  "total_amount": 99.99,
+  "items": [{"product_id": "prod-1", "quantity": 1, "price": 99.99}]
+}' localhost:50051 order.v1.OrderService/CreateOrder
+
+grpcurl -plaintext -d '{
+  "idempotency_key": "unique-key-cancel-123",
+  "order_id": "4ed43ee8-9410-4136-b656-72807c566b73"
+}' localhost:50051 order.v1.OrderService/CancelOrder
+
+grpcurl -plaintext -d '{
+  "idempotency_key": "test-key-001",
+  "customer_id": "cust-123",
+  "order_id": "4ed43ee8-9410-4136-b656-72807c566b73",
+  "amount": 99.99
+}' localhost:50052 payment.v1.PaymentService/ProcessPayment
