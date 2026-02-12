@@ -3,7 +3,6 @@ module github.com/dandirahmadani19/distributed-saga-orchestrator/shared
 go 1.21
 
 require (
-	github.com/lib/pq v1.10.9
 	github.com/rs/zerolog v1.31.0
 	go.opentelemetry.io/otel/trace v1.21.0
 )
