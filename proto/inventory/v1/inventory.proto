@@ -22,7 +22,7 @@ message ReserveItem {
 
 message ReserveInventoryResponse {
     string reservation_id = 1;
-    string status = 2;  // ACTIVE, RELEASED
+    string status = 2;
 }
 
 message ReleaseInventoryRequest {

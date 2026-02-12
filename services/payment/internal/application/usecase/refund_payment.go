@@ -50,7 +50,12 @@ func (uc *RefundPaymentUseCase) Execute(ctx context.Context, req dto.RefundPayme
 
 func (uc *RefundPaymentUseCase) toDto(payment *entity.Payment) *dto.PaymentResponse {
 	return &dto.PaymentResponse{
-		ID:     payment.ID,
-		Status: string(payment.Status),
+		ID:         payment.ID,
+		OrderID:    payment.OrderID,
+		CustomerID: payment.CustomerID,
+		Amount:     payment.Amount,
+		Status:     string(payment.Status),
+		CreatedAt:  payment.CreatedAt,
+		UpdatedAt:  payment.UpdatedAt,
 	}
 }

@@ -33,6 +33,8 @@ func (uc *ProcessPaymentUseCase) Execute(ctx context.Context, req dto.CreatePaym
 	// 2. Create new payment
 	payment := entity.NewPayment(req.OrderID, req.CustomerID, req.Amount)
 
+	payment.Process()
+
 	// 3. Save to DB
 	if err := uc.repo.Create(ctx, payment, req.IdempotencyKey); err != nil {
 		return nil, err

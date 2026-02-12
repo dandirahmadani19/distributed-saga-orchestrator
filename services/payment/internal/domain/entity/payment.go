@@ -10,9 +10,10 @@ type PaymentStatus string
 
 const (
 	PaymentStatusPending   PaymentStatus = "PENDING"
-	PaymentStatusProcessed PaymentStatus = "PROCESSED"
+	PaymentStatusProcessed PaymentStatus = "PROCESSING"
 	PaymentStatusFailed    PaymentStatus = "FAILED"
 	PaymentStatusRefunded  PaymentStatus = "REFUNDED"
+	PaymentStatusCompleted PaymentStatus = "COMPLETED"
 )
 
 type Payment struct {
@@ -26,6 +27,10 @@ type Payment struct {
 }
 
 func NewPayment(orderID, customerID string, amount float64) *Payment {
+	if orderID == "" || customerID == "" || amount <= 0 {
+		return nil
+	}
+
 	now := time.Now()
 	return &Payment{
 		ID:         uuid.New().String(),

@@ -8,7 +8,6 @@ import (
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/entity"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/repository"
-	"github.com/google/uuid"
 )
 
 type postgresPaymentRepository struct {
@@ -25,9 +24,6 @@ func (r *postgresPaymentRepository) Create(ctx context.Context, payment *entity.
 		return err
 	}
 	defer tx.Rollback()
-
-	// Generate ID
-	payment.ID = uuid.New().String()
 
 	// Insert payment
 	query := `
