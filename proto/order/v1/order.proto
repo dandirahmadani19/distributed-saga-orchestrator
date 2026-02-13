@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package order.v1;
 
-option go_package = "github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/gen/proto/order/v1";
+option go_package = "services/order/gen/proto/order/v1";
 
 // Order Service handles order creation and cancellation
 service OrderService {

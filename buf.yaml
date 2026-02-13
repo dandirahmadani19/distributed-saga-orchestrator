@@ -1,0 +1,11 @@
+# For details on buf.yaml configuration, visit https://buf.build/docs/configuration/v2/buf-yaml
+version: v1
+name: github.com/dandirahmadani19/distributed-saga-orchestrator
+
+breaking:
+  use:
+    - FILE
+
+lint:
+  use:
+    - DEFAULT
