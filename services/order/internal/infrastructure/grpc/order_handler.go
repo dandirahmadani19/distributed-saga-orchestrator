@@ -6,6 +6,7 @@ import (
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/gen/proto/order/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/dto"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/usecase"
+	"google.golang.org/grpc"
 )
 
 type OrderHandler struct {
@@ -19,6 +20,10 @@ func NewOrderHandler(createUC *usecase.CreateOrderUseCase, cancelUC *usecase.Can
 		createUC: createUC,
 		cancelUC: cancelUC,
 	}
+}
+
+func (h *OrderHandler) RegisterOrderServiceServer(s *grpc.Server) {
+	pb.RegisterOrderServiceServer(s, h)
 }
 
 func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
