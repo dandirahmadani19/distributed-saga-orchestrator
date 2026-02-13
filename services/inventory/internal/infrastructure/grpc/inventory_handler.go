@@ -14,13 +14,11 @@ import (
 type InventoryHandler struct {
 	pb.UnimplementedInventoryServiceServer
 	ucReserve *usecase.ReserveInventoryUseCase
-	ucRelease *usecase.ReleaseInventoryUseCase
 }
 
-func NewInventoryHandler(ucReserve *usecase.ReserveInventoryUseCase, ucRelease *usecase.ReleaseInventoryUseCase) *InventoryHandler {
+func NewInventoryHandler(ucReserve *usecase.ReserveInventoryUseCase) *InventoryHandler {
 	return &InventoryHandler{
 		ucReserve: ucReserve,
-		ucRelease: ucRelease,
 	}
 }
 
@@ -53,15 +51,5 @@ func (h *InventoryHandler) ReserveInventory(ctx context.Context, req *pb.Reserve
 }
 
 func (h *InventoryHandler) ReleaseInventory(ctx context.Context, req *pb.ReleaseInventoryRequest) (*pb.ReleaseInventoryResponse, error) {
-	reservation, err := h.ucRelease.Execute(ctx, dto.ReleaseInventoryRequest{
-		IdempotencyKey: req.IdempotencyKey,
-		OrderID:        req.OrderId,
-	})
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &pb.ReleaseInventoryResponse{
-		Status: reservation.Status,
-	}, nil
+	return &pb.ReleaseInventoryResponse{}, nil
 }

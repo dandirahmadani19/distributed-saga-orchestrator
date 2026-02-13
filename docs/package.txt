@@ -36,8 +36,3 @@ grpcurl -plaintext -d '{
     {"product_id": "product-2", "quantity": 1}
   ]
 }' localhost:50053 inventory.v1.InventoryService/ReserveInventory
-
-grpcurl -plaintext -d '{
-  "idempotency_key": "test-123",
-  "order_id": "4ed43ee8-9410-4136-b656-72807c566b73"
-}' localhost:50053 inventory.v1.InventoryService/ReleaseInventory

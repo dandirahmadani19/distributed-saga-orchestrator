@@ -28,9 +28,8 @@ func main() {
 	}
 
 	repo := repository.NewPostgresReservationRepository(app.DB)
-	ucReserve := usecase.NewReserveInventoryUseCase(repo, app.Log)
-	ucRelease := usecase.NewReleaseInventoryUseCase(repo, app.Log)
-	handler := grpcHandler.NewInventoryHandler(ucReserve, ucRelease)
+	uc := usecase.NewReserveInventoryUseCase(repo, app.Log)
+	handler := grpcHandler.NewInventoryHandler(uc)
 	handler.RegisterInventoryServiceServer(app.GRPC.Instance())
 
 	if err := app.Run(); err != nil {
