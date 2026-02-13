@@ -1,5 +1,6 @@
 MIGRATE_ORDER_URL := postgresql://saga:saga@postgres-order:5432/order_service?sslmode=disable
 MIGRATE_PAYMENT_URL := postgresql://saga:saga@postgres-payment:5432/payment_service?sslmode=disable
+MIGRATE_INVENTORY_URL := postgresql://saga:saga@postgres-inventory:5432/inventory_service?sslmode=disable
 NETWORK_NAME := saga-orchestrator-network
 
 help:
@@ -67,6 +68,31 @@ migrate-force-payment:
 		-v "$(shell pwd)/services/payment/migrations:/migrations" \
 		migrate/migrate:latest -path=/migrations \
 		-database "$(MIGRATE_PAYMENT_URL)" force $(VERSION)
+	@echo "✅ Migration version forced to $(VERSION)"
+
+# Database migration commands for inventory service
+migrate-up-inventory:
+	@echo "🔄 Running inventory service migrations..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/inventory/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_INVENTORY_URL)" up
+	@echo "✅ Migrations completed"
+
+migrate-down-inventory:
+	@echo "⬇️  Rolling back inventory service migrations..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/inventory/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_INVENTORY_URL)" down 1
+	@echo "✅ Rollback completed"
+
+migrate-force-inventory:
+	@echo "⚠️  Forcing migration version..."
+	@docker run --rm --network $(NETWORK_NAME) \
+		-v "$(shell pwd)/services/inventory/migrations:/migrations" \
+		migrate/migrate:latest -path=/migrations \
+		-database "$(MIGRATE_INVENTORY_URL)" force $(VERSION)
 	@echo "✅ Migration version forced to $(VERSION)"
 
 ## Clean generated files
