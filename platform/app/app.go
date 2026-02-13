@@ -63,6 +63,11 @@ func New(opts ...Option) (*App, error) {
 		return nil, err
 	}
 
+	if cfg.GRPC.Reflection {
+		grpcServer.EnableReflection(g)
+		log.Info().Msg("gRPC reflection enabled")
+	}
+
 	return &App{
 		Cfg:    cfg,
 		Log:    log,

@@ -20,7 +20,8 @@ type AppConfig struct {
 // =======================
 
 type GRPCConfig struct {
-	Port int `env:"GRPC_PORT" env-default:"50051"`
+	Port       int  `env:"GRPC_PORT" env-default:"50051"`
+	Reflection bool `env:"REFLECTION" env-default:"false"`
 }
 
 // =======================
