@@ -5,10 +5,10 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/config"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/database"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/server"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/shared/pkg/logger"
 	"github.com/rs/zerolog/log"
 )
 

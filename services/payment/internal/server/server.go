@@ -6,12 +6,12 @@ import (
 	"net"
 	"time"
 
+	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/gen/proto/payment/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/usecase"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/config"
 	grpcHandler "github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/infrastructure/grpc"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/infrastructure/repository"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/shared/pkg/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

@@ -3,10 +3,10 @@ package usecase
 import (
 	"context"
 
+	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/dto"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/entity"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/repository"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/shared/pkg/logger"
 )
 
 type ProcessPaymentUseCase struct {
