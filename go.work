@@ -3,7 +3,7 @@ go 1.25.1
 use (
 	// ./services/orchestrator
 	./services/payment
-	// ./services/inventory
+	./services/inventory
 	./services/order
-	./shared
+	./platform
 )

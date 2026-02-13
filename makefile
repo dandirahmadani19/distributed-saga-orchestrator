@@ -123,3 +123,25 @@ stop-dev-payment:
 logs-dev-payment:
 	@docker compose -f deployments/docker/docker-compose.dev.payment.yml logs -f payment-service
 
+# Development Inventory Service commands with Air hot reloading
+build-dev-inventory:
+	@echo "🔥 Building and starting development mode with Air hot reloading..."
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml up -d postgres-inventory
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml up --build -d inventory-service
+	@echo "✅ Development service is running with hot reload"
+
+start-dev-inventory:
+	@echo "🔥 Starting development mode with Air hot reloading..."
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml up -d postgres-inventory
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml up -d inventory-service
+	@echo "✅ Development service is running with hot reload"
+
+stop-dev-inventory:
+	@echo "Stopping development service..."
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml down postgres-inventory
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml down inventory-service
+	@echo "✅ Development service is stopped"
+
+logs-dev-inventory:
+	@docker compose -f deployments/docker/docker-compose.dev.inventory.yml logs -f inventory-service
+

@@ -1,0 +1,12 @@
+# Development Dockerfile (Monorepo Friendly)
+FROM golang:1.25-alpine
+
+RUN apk add --no-cache git
+RUN go install github.com/air-verse/air@latest
+
+# Root project directory
+WORKDIR /app/services/inventory
+
+EXPOSE 50053
+
+CMD ["air", "-c", ".air.toml"]
