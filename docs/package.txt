@@ -27,3 +27,12 @@ grpcurl -plaintext -d '{
   "idempotency_key": "test-key-001",
   "payment_id": "fcd28f81-290f-4a62-b0ad-d39ac0f1da1b"
 }' localhost:50052 payment.v1.PaymentService/RefundPayment
+
+grpcurl -plaintext -d '{
+  "idempotency_key": "test-123",
+  "order_id": "4ed43ee8-9410-4136-b656-72807c566b73",
+  "items": [
+    {"product_id": "product-1", "quantity": 2},
+    {"product_id": "product-2", "quantity": 1}
+  ]
+}' localhost:50053 inventory.v1.InventoryService/ReserveInventory
