@@ -6,6 +6,7 @@ import (
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/gen/proto/payment/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/dto"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/usecase"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -14,6 +15,10 @@ type PaymentHandler struct {
 	pb.UnimplementedPaymentServiceServer
 	processUC *usecase.ProcessPaymentUseCase
 	refundUC  *usecase.RefundPaymentUseCase
+}
+
+func (h *PaymentHandler) RegisterPaymentServiceServer(s *grpc.Server) {
+	pb.RegisterPaymentServiceServer(s, h)
 }
 
 func NewPaymentHandler(processUC *usecase.ProcessPaymentUseCase, refundUC *usecase.RefundPaymentUseCase) *PaymentHandler {
