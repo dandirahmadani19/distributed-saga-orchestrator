@@ -10,7 +10,7 @@ services:
     ports:
       - "5436:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U saga"]
+      test: ["CMD-SHELL", "pg_isready -U saga -d inventory_service"]
       interval: 3s
       timeout: 5s
       retries: 5
@@ -24,14 +24,8 @@ services:
     networks:
       - saga-network
     working_dir: /app/services/inventory
-    environment:
-      PORT: "50053"
-      DB_HOST: postgres-inventory
-      DB_PORT: "5432"
-      DB_USER: saga
-      DB_PASSWORD: saga
-      DB_NAME: inventory_service
-      DB_SSLMODE: disable
+    env_file:
+      - ../../services/inventory/.env
     ports:
       - "50053:50053"
     depends_on:
