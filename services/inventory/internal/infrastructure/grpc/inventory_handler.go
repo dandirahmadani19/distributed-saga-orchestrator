@@ -5,19 +5,25 @@ import (
 
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/gen/proto/inventory/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/application/dto"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/application/usecase"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type InventoryHandler struct {
-	pb.UnimplementedInventoryServiceServer
-	ucReserve *usecase.ReserveInventoryUseCase
-	ucRelease *usecase.ReleaseInventoryUseCase
+type ReserveInventory interface {
+	Execute(ctx context.Context, req dto.ReserveInventoryRequest) (*dto.ReservationResponse, error)
+}
+type ReleaseInventory interface {
+	Execute(ctx context.Context, req dto.ReleaseInventoryRequest) (*dto.ReservationResponse, error)
 }
 
-func NewInventoryHandler(ucReserve *usecase.ReserveInventoryUseCase, ucRelease *usecase.ReleaseInventoryUseCase) *InventoryHandler {
+type InventoryHandler struct {
+	pb.UnimplementedInventoryServiceServer
+	ucReserve ReserveInventory
+	ucRelease ReleaseInventory
+}
+
+func NewInventoryHandler(ucReserve ReserveInventory, ucRelease ReleaseInventory) *InventoryHandler {
 	return &InventoryHandler{
 		ucReserve: ucReserve,
 		ucRelease: ucRelease,

@@ -5,17 +5,23 @@ import (
 
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/gen/proto/order/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/dto"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/usecase"
 	"google.golang.org/grpc"
 )
 
-type OrderHandler struct {
-	pb.UnimplementedOrderServiceServer
-	createUC *usecase.CreateOrderUseCase
-	cancelUC *usecase.CancelOrderUseCase
+type OrderCreator interface {
+	Execute(ctx context.Context, req dto.CreateOrderRequest) (*dto.OrderResponse, error)
+}
+type OrderCanceller interface {
+	Execute(ctx context.Context, orderID string, idempotencyKey string) (*dto.OrderResponse, error)
 }
 
-func NewOrderHandler(createUC *usecase.CreateOrderUseCase, cancelUC *usecase.CancelOrderUseCase) *OrderHandler {
+type OrderHandler struct {
+	pb.UnimplementedOrderServiceServer
+	createUC OrderCreator
+	cancelUC OrderCanceller
+}
+
+func NewOrderHandler(createUC OrderCreator, cancelUC OrderCanceller) *OrderHandler {
 	return &OrderHandler{
 		createUC: createUC,
 		cancelUC: cancelUC,

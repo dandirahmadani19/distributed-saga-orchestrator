@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/app"
@@ -24,7 +25,7 @@ func main() {
 		}),
 	)
 	if err != nil {
-		app.Log.Fatal().Err(err).Msg("failed to create app")
+		log.Fatalf("failed to create app: %v", err)
 	}
 
 	repo := repository.NewPostgresOrderRepository(app.DB)

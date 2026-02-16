@@ -5,23 +5,29 @@ import (
 
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/gen/proto/payment/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/dto"
-	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/usecase"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+type ProccessPayment interface {
+	Execute(ctx context.Context, req dto.CreatePaymentRequest) (*dto.PaymentResponse, error)
+}
+type RefundPayment interface {
+	Execute(ctx context.Context, req dto.RefundPaymentRequest) (*dto.PaymentResponse, error)
+}
+
 type PaymentHandler struct {
 	pb.UnimplementedPaymentServiceServer
-	processUC *usecase.ProcessPaymentUseCase
-	refundUC  *usecase.RefundPaymentUseCase
+	processUC ProccessPayment
+	refundUC  RefundPayment
 }
 
 func (h *PaymentHandler) RegisterPaymentServiceServer(s *grpc.Server) {
 	pb.RegisterPaymentServiceServer(s, h)
 }
 
-func NewPaymentHandler(processUC *usecase.ProcessPaymentUseCase, refundUC *usecase.RefundPaymentUseCase) *PaymentHandler {
+func NewPaymentHandler(processUC ProccessPayment, refundUC RefundPayment) *PaymentHandler {
 	return &PaymentHandler{processUC: processUC, refundUC: refundUC}
 }
 
