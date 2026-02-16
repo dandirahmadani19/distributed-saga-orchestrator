@@ -44,7 +44,12 @@ func New(opts ...Option) (*App, error) {
 	log := logger.New(cfg.App.Name)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+
+	defer func() {
+		if err != nil {
+			cancel()
+		}
+	}()
 
 	db, err := postgres.NewPostgres(ctx, cfg.Postgres)
 	if err != nil {

@@ -4,6 +4,8 @@ go 1.25.1
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
+	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.11.2
 	github.com/rs/zerolog v1.34.0
 	go.opentelemetry.io/otel/trace v1.40.0
 	google.golang.org/grpc v1.79.0
@@ -12,7 +14,6 @@ require (
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	go.opentelemetry.io/otel v1.40.0 // indirect
