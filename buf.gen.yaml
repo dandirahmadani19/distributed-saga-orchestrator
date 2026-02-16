@@ -1,12 +1,34 @@
 version: v1
-
 plugins:
   - plugin: go
-    out: .
+    out: services/inventory/gen
     opt:
-      - paths=import
-
+      - paths=source_relative
   - plugin: go-grpc
-    out: .
+    out: services/inventory/gen
     opt:
-      - paths=import
+      - paths=source_relative
+  - plugin: go
+    out: services/order/gen
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: services/order/gen
+    opt:
+      - paths=source_relative
+  - plugin: go
+    out: services/payment/gen
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: services/payment/gen
+    opt:
+      - paths=source_relative
+  - plugin: go
+    out: services/orchestrator/gen
+    opt:
+      - paths=source_relative
+  - plugin: go-grpc
+    out: services/orchestrator/gen
+    opt:
+      - paths=source_relative
