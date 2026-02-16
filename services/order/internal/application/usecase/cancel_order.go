@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/dto"
@@ -38,7 +37,7 @@ func (uc *CancelOrderUseCase) Execute(ctx context.Context, orderID string, idemp
 	// Find order
 	order, err := uc.repo.FindByID(ctx, orderID)
 	if err != nil {
-		return nil, fmt.Errorf("order not found: %w", err)
+		return nil, err
 	}
 
 	// Cancel it
@@ -46,7 +45,7 @@ func (uc *CancelOrderUseCase) Execute(ctx context.Context, orderID string, idemp
 
 	// Persist
 	if err := uc.repo.Update(ctx, order); err != nil {
-		return nil, fmt.Errorf("failed to cancel order: %w", err)
+		return nil, err
 	}
 
 	uc.logger.Info().

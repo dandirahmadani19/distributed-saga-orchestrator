@@ -3,11 +3,10 @@ package grpc
 import (
 	"context"
 
+	grpcPlatform "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/grpc"
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/gen/proto/payment/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/dto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type ProccessPayment interface {
@@ -40,7 +39,7 @@ func (h *PaymentHandler) ProcessPayment(ctx context.Context, req *pb.ProcessPaym
 	})
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, grpcPlatform.ToStatus(err)
 	}
 
 	return &pb.ProcessPaymentResponse{
@@ -56,7 +55,7 @@ func (h *PaymentHandler) RefundPayment(ctx context.Context, req *pb.RefundPaymen
 	})
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, grpcPlatform.ToStatus(err)
 	}
 
 	return &pb.RefundPaymentResponse{

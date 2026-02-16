@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/application/dto"
@@ -39,7 +38,7 @@ func (uc *ReleaseInventoryUseCase) Execute(ctx context.Context, req dto.ReleaseI
 	// because the orchestrator knows the order_id, not the reservation_id
 	reservation, err := uc.repo.GetByOrderID(ctx, req.OrderID)
 	if err != nil {
-		return nil, fmt.Errorf("reservation not found for order: %w", err)
+		return nil, err
 	}
 
 	// 3. Release the reservation

@@ -31,7 +31,10 @@ func (uc *ProcessPaymentUseCase) Execute(ctx context.Context, req dto.CreatePaym
 	}
 
 	// 2. Create new payment
-	payment := entity.NewPayment(req.OrderID, req.CustomerID, req.Amount)
+	payment, err := entity.NewPayment(req.OrderID, req.CustomerID, req.Amount)
+	if err != nil {
+		return nil, err
+	}
 
 	payment.Process()
 

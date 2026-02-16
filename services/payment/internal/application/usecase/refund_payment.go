@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/application/dto"
@@ -34,7 +33,7 @@ func (uc *RefundPaymentUseCase) Execute(ctx context.Context, req dto.RefundPayme
 	// 2. Get payment
 	payment, err := uc.repo.GetByID(ctx, req.PaymentID)
 	if err != nil {
-		return nil, fmt.Errorf("payment not found: %w", err)
+		return nil, err
 	}
 
 	// 3. Refund payment

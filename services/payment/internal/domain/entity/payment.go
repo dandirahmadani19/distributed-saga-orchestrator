@@ -3,6 +3,7 @@ package entity
 import (
 	"time"
 
+	pErrors "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/errors"
 	"github.com/google/uuid"
 )
 
@@ -26,9 +27,17 @@ type Payment struct {
 	UpdatedAt  time.Time
 }
 
-func NewPayment(orderID, customerID string, amount float64) *Payment {
-	if orderID == "" || customerID == "" || amount <= 0 {
-		return nil
+func NewPayment(orderID, customerID string, amount float64) (*Payment, error) {
+	if orderID == "" {
+		return nil, pErrors.E(pErrors.Invalid, "order id is required", nil)
+	}
+
+	if customerID == "" {
+		return nil, pErrors.E(pErrors.Invalid, "customer id is required", nil)
+	}
+
+	if amount <= 0 {
+		return nil, pErrors.E(pErrors.Invalid, "amount must be greater than 0", nil)
 	}
 
 	now := time.Now()
@@ -40,7 +49,7 @@ func NewPayment(orderID, customerID string, amount float64) *Payment {
 		Status:     PaymentStatusPending,
 		CreatedAt:  now,
 		UpdatedAt:  now,
-	}
+	}, nil
 }
 
 func (p *Payment) Refund() {

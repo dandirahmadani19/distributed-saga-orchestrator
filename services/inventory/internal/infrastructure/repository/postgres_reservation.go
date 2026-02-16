@@ -9,6 +9,8 @@ import (
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/domain/entity"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/domain/repository"
 	"github.com/google/uuid"
+
+	pErrors "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/errors"
 )
 
 type postgresReservationRepository struct {
@@ -21,7 +23,7 @@ func NewPostgresReservationRepository(db *sql.DB) repository.ReservationReposito
 func (r *postgresReservationRepository) Create(ctx context.Context, reservation *entity.Reservation, idempotencyKey string) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to begin transaction", err)
 	}
 	defer tx.Rollback()
 
@@ -38,7 +40,7 @@ func (r *postgresReservationRepository) Create(ctx context.Context, reservation 
 		reservation.CreatedAt, reservation.UpdatedAt,
 	)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to insert reservation", err)
 	}
 
 	// Insert reservation items
@@ -51,7 +53,7 @@ func (r *postgresReservationRepository) Create(ctx context.Context, reservation 
 			reservation.ID, item.ProductID, item.Quantity,
 		)
 		if err != nil {
-			return err
+			return pErrors.E(pErrors.Internal, "failed to insert reservation item", err)
 		}
 	}
 
@@ -66,7 +68,7 @@ func (r *postgresReservationRepository) Create(ctx context.Context, reservation 
 		time.Now(), time.Now().Add(24*time.Hour),
 	)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to store idempotency key", err)
 	}
 	return tx.Commit()
 }
@@ -93,7 +95,7 @@ func (r *postgresReservationRepository) CheckIdempotency(ctx context.Context, ke
 		return nil, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to check idempotency", err)
 	}
 	reservation.Status = entity.ReservationStatus(status)
 	return &reservation, nil
@@ -112,13 +114,13 @@ func (r *postgresReservationRepository) GetByOrderID(ctx context.Context, orderI
 		&reservation.CreatedAt, &reservation.UpdatedAt,
 	)
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to get reservation by order id", err)
 	}
 	reservation.Status = entity.ReservationStatus(status)
 	// Load items
 	items, err := r.loadItems(ctx, reservation.ID)
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to load reservation items", err)
 	}
 	reservation.Items = items
 	return &reservation, nil
@@ -139,16 +141,21 @@ func (r *postgresReservationRepository) loadItems(ctx context.Context, reservati
 	query := `SELECT product_id, quantity FROM reservation_items WHERE reservation_id = $1`
 	rows, err := r.db.QueryContext(ctx, query, reservationID)
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to load reservation items", err)
 	}
 	defer rows.Close()
 	var items []entity.ReservationItem
 	for rows.Next() {
 		var item entity.ReservationItem
 		if err := rows.Scan(&item.ProductID, &item.Quantity); err != nil {
-			return nil, err
+			return nil, pErrors.E(pErrors.Internal, "failed to load reservation items", err)
 		}
 		items = append(items, item)
 	}
+
+	if err := rows.Err(); err != nil {
+		return nil, pErrors.E(pErrors.Internal, "failed to load reservation items", err)
+	}
+
 	return items, nil
 }

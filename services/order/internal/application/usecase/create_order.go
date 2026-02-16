@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/platform/logger"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/dto"
@@ -28,7 +27,10 @@ func NewCreateOrderUseCase(repo repository.OrderRepository, logger *logger.Logge
 func (uc *CreateOrderUseCase) Execute(ctx context.Context, req dto.CreateOrderRequest) (*dto.OrderResponse, error) {
 	// Check idempotency first
 	existingOrder, err := uc.repo.CheckIdempotency(ctx, req.IdempotencyKey)
-	if err == nil && existingOrder != nil {
+	if err != nil {
+		return nil, err
+	}
+	if existingOrder != nil {
 		uc.logger.InfoWithTrace(ctx).
 			Str("order_id", existingOrder.ID).
 			Msg("Returning existing order (idempotent)")
@@ -47,12 +49,15 @@ func (uc *CreateOrderUseCase) Execute(ctx context.Context, req dto.CreateOrderRe
 	}
 
 	// Create order using domain factory
-	order := entity.NewOrder(req.CustomerID, items, req.TotalAmount)
+	order, err := entity.NewOrder(req.CustomerID, items, req.TotalAmount)
+	if err != nil {
+		return nil, err
+	}
 
 	// Persist order
 	createdOrder, err := uc.repo.Create(ctx, order, req.IdempotencyKey)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create order: %w", err)
+		return nil, err
 	}
 
 	uc.logger.InfoWithTrace(ctx).

@@ -8,6 +8,8 @@ import (
 
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/entity"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/payment/internal/domain/repository"
+
+	pErrors "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/errors"
 )
 
 type postgresPaymentRepository struct {
@@ -21,7 +23,7 @@ func NewPostgresPaymentRepository(db *sql.DB) repository.PaymentRepository {
 func (r *postgresPaymentRepository) Create(ctx context.Context, payment *entity.Payment, idempotencyKey string) error {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to begin transaction", err)
 	}
 	defer tx.Rollback()
 
@@ -35,7 +37,7 @@ func (r *postgresPaymentRepository) Create(ctx context.Context, payment *entity.
 		payment.CreatedAt, payment.UpdatedAt,
 	)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to insert payment", err)
 	}
 
 	// Store idempotency key
@@ -49,11 +51,11 @@ func (r *postgresPaymentRepository) Create(ctx context.Context, payment *entity.
 		time.Now(), time.Now().Add(24*time.Hour),
 	)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to store idempotency key", err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to commit transaction", err)
 	}
 	return nil
 }
@@ -86,7 +88,7 @@ func (r *postgresPaymentRepository) CheckIdempotency(ctx context.Context, key st
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to check idempotency", err)
 	}
 
 	payment.Status = entity.PaymentStatus(status)
@@ -116,7 +118,7 @@ func (r *postgresPaymentRepository) GetByID(ctx context.Context, id string) (*en
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, pErrors.E(pErrors.Internal, "failed to get payment by id", err)
 	}
 
 	payment.Status = entity.PaymentStatus(status)
@@ -130,9 +132,14 @@ func (r *postgresPaymentRepository) Update(ctx context.Context, payment *entity.
 		WHERE id = $1
 	`
 
-	_, err := r.db.ExecContext(ctx, query, payment.ID, string(payment.Status), payment.UpdatedAt)
+	result, err := r.db.ExecContext(ctx, query, payment.ID, string(payment.Status), payment.UpdatedAt)
 	if err != nil {
-		return err
+		return pErrors.E(pErrors.Internal, "failed to update payment", err)
+	}
+
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		return pErrors.E(pErrors.NotFound, "payment not found", nil)
 	}
 
 	return nil

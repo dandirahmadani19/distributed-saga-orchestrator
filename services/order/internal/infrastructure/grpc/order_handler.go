@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 
+	grpcPlatform "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/grpc"
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/gen/proto/order/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/order/internal/application/dto"
 	"google.golang.org/grpc"
@@ -53,7 +54,7 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 	// Execute use case
 	result, err := h.createUC.Execute(ctx, dtoReq)
 	if err != nil {
-		return nil, err
+		return nil, grpcPlatform.ToStatus(err)
 	}
 
 	// Convert DTO to protobuf
@@ -67,7 +68,7 @@ func (h *OrderHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReque
 func (h *OrderHandler) CancelOrder(ctx context.Context, req *pb.CancelOrderRequest) (*pb.CancelOrderResponse, error) {
 	result, err := h.cancelUC.Execute(ctx, req.OrderId, req.IdempotencyKey)
 	if err != nil {
-		return nil, err
+		return nil, grpcPlatform.ToStatus(err)
 	}
 	return &pb.CancelOrderResponse{
 		OrderId: result.ID,

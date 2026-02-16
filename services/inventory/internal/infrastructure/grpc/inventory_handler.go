@@ -3,11 +3,10 @@ package grpc
 import (
 	"context"
 
+	grpcPlatform "github.com/dandirahmadani19/distributed-saga-orchestrator/platform/grpc"
 	pb "github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/gen/proto/inventory/v1"
 	"github.com/dandirahmadani19/distributed-saga-orchestrator/services/inventory/internal/application/dto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type ReserveInventory interface {
@@ -49,7 +48,7 @@ func (h *InventoryHandler) ReserveInventory(ctx context.Context, req *pb.Reserve
 		Items:          items,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, grpcPlatform.ToStatus(err)
 	}
 
 	return &pb.ReserveInventoryResponse{
@@ -64,7 +63,7 @@ func (h *InventoryHandler) ReleaseInventory(ctx context.Context, req *pb.Release
 		OrderID:        req.OrderId,
 	})
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, grpcPlatform.ToStatus(err)
 	}
 
 	return &pb.ReleaseInventoryResponse{
